@@ -1,0 +1,13 @@
+<div class="d-flex justify-content-center">
+  <app-policy-table
+    [percentage]="percentageAllocation"
+    [inputParentage]="parentagePolicy"
+    (beneficiariesPolicyEmitter)="getBeneficiariesPolicy($event)"></app-policy-table>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+  <app-medical-assistance-table
+    [quantityInParentagePolicy]="quantityInParentagePolicy"
+    [inputParentage]="parentageMedicalAssitance"
+    (beneficiariesMediacalAssitanceEmitter)="getBeneficiariesMediacalAssitance($event)"></app-medical-assistance-table>
+</div>
