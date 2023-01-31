@@ -9,7 +9,7 @@
         <th scope="col">Fecha de nacimiento</th>
         <th scope="col">
           <button type="button" class="btn btn-sm btn-success"
-          [ngClass]="{disabled: !itDoesNotHaveMaximumFields}"
+            [ngClass]="{disabled: !itDoesNotHaveMaximumFields}"
             (click)="addBeneficiary()">Agregar nuevo beneficiario</button></th>
       </tr>
     </thead>
@@ -62,10 +62,16 @@
         <td>
           <input class="form-control form-control-sm" type="date"
             placeholder="00/00/0000" aria-label=".form-control-sm example"
-            formControlName="birthday">
+            formControlName="birthday"
+            (change)="getApplicantForMedicalBenefits(i)">
           <span class="form-text text-danger"
             *ngIf="inputIsValid('birthday', i)">
-            Este campo es obligatorio.
+            {{
+              inputPatternIsValid('birthday', 'notUnderAge', i) ?
+              'El beneficio medico solo aplica para hijos menores de 18 años.' :
+              'Este campo es obligatorio.'
+            }}
+
           </span>
         </td>
         <td>

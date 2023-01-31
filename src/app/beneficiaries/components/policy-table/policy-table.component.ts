@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import { IDENTIFICATION } from '../../constants/regex.contant';
@@ -28,7 +28,7 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
   constructor(private _fb: FormBuilder) { }
 
   ngOnInit(): void {
-    this.beneficiaries.valueChanges.subscribe((_) => {
+    this._subscription = this.beneficiaries.valueChanges.subscribe((_) => {
       this.beneficiariesPolicyEmitter.emit(this.beneficiaries.value);
     });
   }

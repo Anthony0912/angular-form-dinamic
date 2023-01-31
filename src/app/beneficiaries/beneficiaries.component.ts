@@ -56,9 +56,9 @@ export class BeneficiariesComponent implements OnInit {
     this._beneficiariesMediacalAssitance.map(beneficiary => {
       const parentage: number = Number(beneficiary.parentage);
       if (parentage === this._parentagePolicy[0].id) {
-        this.quantityInParentagePolicy[0].quantity += 1;
+        this.quantityInParentageMediacalAssitance[0].quantity += 1;
       } else if (parentage === this._parentagePolicy[1].id) {
-        this.quantityInParentagePolicy[1].quantity += 1;
+        this.quantityInParentageMediacalAssitance[1].quantity += 1;
       }
     });
   }
