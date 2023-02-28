@@ -34,6 +34,8 @@
             {{
               inputPatternIsValid('parentage', 'notUniqueParentage', i) ?
               'Solo puedes agregar un ' + getParentageName(i) :
+              inputPatternIsValid('parentage', 'notUniqueParentageMedicalAsistence', i) ?
+              'No se puede volver a seleccionar ' + getParentageName(i) + '.' :
               'Este campo es obligatorio.'
           }}
           </span>
@@ -73,10 +75,15 @@
           <input class="form-control form-control-sm" type="date"
             placeholder="00/00/0000" aria-label=".form-control-sm example"
             formControlName="birthday"
+            [max]="getDateNow"
             (change)="getApplicantForMedicalBenefits(i)">
           <span class="form-text text-danger"
             *ngIf="inputIsValid('birthday', i)">
-            Este campo es obligatorio.
+            {{
+              inputPatternIsValid('birthday', 'maxDate', i) ?
+              'La fecha debe ser menor o igual a la actual.' :
+              'Este campo es obligatorio.'
+            }}
           </span>
         </td>
         <td class="row">

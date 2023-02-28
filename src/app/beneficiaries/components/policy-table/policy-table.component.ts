@@ -1,12 +1,13 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import * as moment from 'moment-timezone';
 
 import { IDENTIFICATION } from '../../constants/regex.contant';
+import { calculateAge } from '../../functions/date.function';
 
 import Parentage from 'src/app/beneficiaries/interfaces/parentage.interface';
 import { PercentageAllocation } from '../../interfaces/percentage-allocation.interface';
-import { calculateAge } from '../../functions/date.function';
 import FormCustomControl from '../../interfaces/control.interface';
 import Beneficiary from '../../interfaces/beneficiary.interface';
 
@@ -19,7 +20,10 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
 
   @Input() inputParentage: Parentage[] = [];
   @Input() percentage: PercentageAllocation[] = [];
+  @Input() quantityInParentageMedicalAsistance: { id: number; quantity: number }[] = [];
+
   @Output() beneficiariesPolicyEmitter: EventEmitter<Beneficiary[]> = new EventEmitter<Beneficiary[]>();
+  @Output() formValidPolicyEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   private _subscription: Subscription = new Subscription();
   private _IDENTIFICATION: string = IDENTIFICATION;
@@ -30,6 +34,7 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._subscription = this.beneficiaries.valueChanges.subscribe((_) => {
       this.beneficiariesPolicyEmitter.emit(this.beneficiaries.value);
+      this.formValidPolicyEmitter.emit(this.form.valid);
     });
   }
 
@@ -60,6 +65,9 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
   });
 
   public addBeneficiary(): void {
+
+    this._verifyUniqueParentage();
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -82,9 +90,10 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
     if (this.beneficiaries.controls.length > 1) {
       this.beneficiaries.removeAt(i);
       this._getBeneficiaryPercentage();
-      return;
-    };
-    this.beneficiaries.reset();
+    } else {
+      this.beneficiaries.reset();
+    }
+    this.beneficiariesPolicyEmitter.emit(this.beneficiaries.value);
   }
 
   public inputIsValid(input: string, i: number): boolean | null {
@@ -98,7 +107,16 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
   }
 
   public getApplicantForMedicalBenefits(i: number): void {
+
     const { parentage, birthday, medicalBenefit } = this._getFormControls(i);
+    const today = this.getDateNow;
+    const isMaxDate: boolean = birthday.value <= today;
+
+    if (!isMaxDate) {
+      birthday.setErrors({ maxDate: true });
+      return;
+    }
+
     const date = birthday.value;
     const age = calculateAge(date);
     const parentValue: number = Number(parentage.value);
@@ -112,10 +130,6 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
       medicalBenefit?.updateValueAndValidity();
     } else if (age >= 18 && parentValue === 2) {
       this._getBeneficiaryPercentage();
-    } else {
-      birthday.disable();
-      medicalBenefit?.setValue(false);
-      medicalBenefit?.disable();
     }
   }
 
@@ -187,6 +201,15 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
       const { parentage } = this._getFormControls(i);
       const parentValue = Number(parentage.value);
 
+      //Verifica si en la tabla de asistencia medica fue seleccionado el counyunge
+      if (
+        parentValue === this.quantityInParentageMedicalAsistance[0]?.id &&
+        this.quantityInParentageMedicalAsistance[0].quantity === 1
+      ) {
+        parentage.setErrors({ notUniqueParentageMedicalAsistence: true });
+        return;
+      }
+
       switch (parentValue) {
         case this.inputParentage[0].id:
           numberOfRepeatedSpouse += 1;
@@ -199,17 +222,9 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
           break;
       }
 
+      if (numberOfRepeatedSpouse > 1 || numberOfRepeatedFather > 1 || numberOfRepeatedMother > 1)
+        parentage.setErrors({ notUniqueParentage: true });
 
-      if (numberOfRepeatedSpouse > 1) {
-        parentage.setErrors({ notUniqueParentage: true });
-        return;
-      } else if (numberOfRepeatedFather > 1) {
-        parentage.setErrors({ notUniqueParentage: true });
-        return;
-      } else if (numberOfRepeatedMother > 1) {
-        parentage.setErrors({ notUniqueParentage: true });
-        return;
-      }
     }
   }
 
@@ -282,6 +297,11 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
       medicalBenefit: medicalBenefit
     };
     return constrols;
+  }
+
+  public get getDateNow(): string {
+    const today: string = moment.tz('America/Costa_Rica').format();
+    return today.split('T')[0];
   }
 
   public get itDoesNotHaveMaximumFields(): boolean {

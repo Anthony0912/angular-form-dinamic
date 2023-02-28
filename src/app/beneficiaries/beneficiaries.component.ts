@@ -17,17 +17,21 @@ import { PercentageAllocation } from './interfaces/percentage-allocation.interfa
 export class BeneficiariesComponent implements OnInit {
 
   public quantityInParentagePolicy: { id: number; quantity: number }[] = [];
-  public quantityInParentageMediacalAssitance: { id: number; quantity: number }[] = [];
+  public quantityInParentageMedicalAsistance: { id: number; quantity: number }[] = [];
+  public isFormValidPolicy: boolean = false;
+  public isFormValidMedicalAsstance: boolean = false;
 
   private _parentagePolicy: Parentage[] = PARENTAGE_POLICY;
   private _parentageMedicalAssitance: Parentage[] = PARENTAGE_MEDICAL_ASSISTANCE;
   private _percentageAllocation: typeof PERCENTAGE_ALLOCATION = PERCENTAGE_ALLOCATION;
-  private _beneficiariesPolicy: Beneficiary[] = [];
   private _beneficiariesMediacalAssitance: Beneficiary[] = [];
+  private _beneficiariesPolicy: Beneficiary[] = [];
 
   constructor() { }
 
   ngOnInit(): void { }
+
+  public createBeneficiaries(): void { }
 
   public getBeneficiariesPolicy(beneficiaries: Beneficiary[]): void {
     this._beneficiariesPolicy = beneficiaries;
@@ -39,28 +43,44 @@ export class BeneficiariesComponent implements OnInit {
     this._quantityInParentageMediacalAssitance();
   }
 
+  public formValidPolicy(formValid: boolean): void {
+    this.isFormValidPolicy = formValid;
+  }
+
+  public formValidMedicalAsstance(formValid: boolean): void {
+    this.isFormValidMedicalAsstance = formValid;
+  }
+
   private _quantityInParentagePolicy(): void {
-    this.quantityInParentagePolicy = [{ id: 1, quantity: 0 }, { id: 2, quantity: 0 }];
-    this._beneficiariesPolicy.map(beneficiary => {
-      const parentage: number = Number(beneficiary.parentage);
-      if (parentage === this._parentagePolicy[0].id) {
-        this.quantityInParentagePolicy[0].quantity += 1;
-      } else if (parentage === this._parentagePolicy[1].id) {
-        this.quantityInParentagePolicy[1].quantity += 1;
-      }
-    });
+    this.quantityInParentagePolicy = this._getQuantityParentage(this._beneficiariesPolicy);
   }
 
   private _quantityInParentageMediacalAssitance(): void {
-    this.quantityInParentageMediacalAssitance = [{ id: 1, quantity: 0 }, { id: 2, quantity: 0 }];
-    this._beneficiariesMediacalAssitance.map(beneficiary => {
+    this.quantityInParentageMedicalAsistance = this._getQuantityParentage(this._beneficiariesMediacalAssitance);
+  }
+
+  private _getQuantityParentage(beneficiaries: Beneficiary[]): { id: number; quantity: number }[] {
+    const quantityParentage = [{ id: 1, quantity: 0 }, { id: 2, quantity: 0 }];
+    beneficiaries.map(beneficiary => {
       const parentage: number = Number(beneficiary.parentage);
       if (parentage === this._parentagePolicy[0].id) {
-        this.quantityInParentageMediacalAssitance[0].quantity += 1;
+        quantityParentage[0].quantity += 1;
       } else if (parentage === this._parentagePolicy[1].id) {
-        this.quantityInParentageMediacalAssitance[1].quantity += 1;
+        quantityParentage[1].quantity += 1;
       }
     });
+    return quantityParentage;
+  }
+
+  public get percentageIsDiferentZero(): boolean {
+    let isDiferentZero: boolean = false;
+    this._beneficiariesPolicy.map(beneficiary => {
+      const { percentageAllocation } = beneficiary;
+      if (percentageAllocation !== '0%') {
+        isDiferentZero = true;
+      }
+    });
+    return isDiferentZero;
   }
 
   public get parentagePolicy(): Parentage[] {

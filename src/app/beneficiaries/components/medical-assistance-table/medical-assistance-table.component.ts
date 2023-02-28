@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import * as moment from 'moment-timezone';
 
 import { IDENTIFICATION } from '../../constants/regex.contant';
 
@@ -7,7 +9,6 @@ import Parentage from 'src/app/beneficiaries/interfaces/parentage.interface';
 import { calculateAge } from '../../functions/date.function';
 import FormCustomControl from '../../interfaces/control.interface';
 import Beneficiary from '../../interfaces/beneficiary.interface';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-medical-assistance-table',
@@ -18,7 +19,9 @@ export class MedicalAssistanceTableComponent implements OnInit {
 
   @Input() inputParentage: Parentage[] = [];
   @Input() quantityInParentagePolicy: { id: number; quantity: number }[] = [];
+
   @Output() beneficiariesMediacalAssitanceEmitter: EventEmitter<Beneficiary[]> = new EventEmitter<Beneficiary[]>();
+  @Output() formValidMedicalAsstanceEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   private _subscription: Subscription = new Subscription();
   private _IDENTIFICATION: string = IDENTIFICATION;
@@ -29,6 +32,7 @@ export class MedicalAssistanceTableComponent implements OnInit {
   ngOnInit(): void {
     this._subscription = this.beneficiaries.valueChanges.subscribe((_) => {
       this.beneficiariesMediacalAssitanceEmitter.emit(this.beneficiaries.value);
+      this.formValidMedicalAsstanceEmitter.emit(this.form.valid);
     });
   }
 
@@ -55,6 +59,9 @@ export class MedicalAssistanceTableComponent implements OnInit {
   });
 
   public addBeneficiary(): void {
+
+    this._verifyUniqueParentage();
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -98,13 +105,21 @@ export class MedicalAssistanceTableComponent implements OnInit {
 
   public getApplicantForMedicalBenefits(i: number): void {
     const { parentage, birthday } = this._getFormControls(i);
+    const today = this.getDateNow;
+    const isMaxDate: boolean = birthday.value <= today;
+
+    if (!isMaxDate) {
+      birthday.setErrors({ maxDate: true });
+      return;
+    }
+
     const date = birthday.value;
     const age = calculateAge(date);
     const parentValue: number = Number(parentage.value);
 
     if (parentValue === 1) {
       birthday.disable();
-    }  else if (age >= 18 && parentValue === 2) {
+    } else if (age >= 18 && parentValue === 2) {
       birthday.setErrors({ notUnderAge: true });
     }
   }
@@ -112,9 +127,10 @@ export class MedicalAssistanceTableComponent implements OnInit {
   public deleteBeneficiary(i: number): void {
     if (this.beneficiaries.controls.length > 1) {
       this.beneficiaries.removeAt(i);
-      return;
+    } else {
+      this.beneficiaries.reset();
     }
-    this.beneficiaries.reset();
+    this.beneficiariesMediacalAssitanceEmitter.emit(this.beneficiaries.value);
   }
 
   public inputIsValid(input: string, i: number): boolean | null {
@@ -182,7 +198,6 @@ export class MedicalAssistanceTableComponent implements OnInit {
         parentage.setErrors({ notUniqueParentagePolicy: true });
         return;
       }
-
       if (parentValue === this.inputParentage[0].id) {
         numberOfRepeatedSpouse += 1;
       }
@@ -194,6 +209,10 @@ export class MedicalAssistanceTableComponent implements OnInit {
     }
   }
 
+  public get getDateNow(): string {
+    const today: string = moment.tz('America/Costa_Rica').format();
+    return today.split('T')[0];
+  }
 
   public get itDoesNotHaveMaximumFields(): boolean {
     let maxFields = this._maxFields;
