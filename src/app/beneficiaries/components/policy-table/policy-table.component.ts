@@ -131,6 +131,11 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
     } else if (age >= 18 && parentValue === 2) {
       this._getBeneficiaryPercentage();
     }
+    this.formValidPolicyEmitter.emit(this.form.valid);
+  }
+
+  public updateValidatorForm(): void {
+    this.formValidPolicyEmitter.emit(this.form.valid);
   }
 
   public configBirthdayAndMedicalBenefit(i: number): void {

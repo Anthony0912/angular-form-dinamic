@@ -90,7 +90,8 @@
           <div class="d-flex justify-content-center">
             <div class="form-check">
               <input class="form-check-input" type="checkbox"
-                id="flexCheckChecked" formControlName="medicalBenefit" checked>
+                id="flexCheckChecked" formControlName="medicalBenefit" checked
+                (change)="updateValidatorForm()">
             </div>
           </div>
           <div>

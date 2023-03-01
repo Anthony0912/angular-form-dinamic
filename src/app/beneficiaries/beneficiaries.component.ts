@@ -95,4 +95,13 @@ export class BeneficiariesComponent implements OnInit {
     return [...this._percentageAllocation];
   }
 
+  public get disabledBtn(): boolean {
+    if (this.isFormValidPolicy && this._beneficiariesMediacalAssitance.length === 0) {
+      return true;
+    } else if (this.isFormValidPolicy && this.isFormValidMedicalAsstance) {
+      return true;
+    }
+    return false;
+  }
+
 }

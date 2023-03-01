@@ -16,8 +16,11 @@
 </div>
 
 
+{{percentageIsDiferentZero | json}}
+{{isFormValidPolicy | json}}
+{{isFormValidMedicalAsstance | json}}
 <div class="d-flex justify-content-center mt-5">
   <button type="button" class="btn btn-sm btn-success"
-    [ngClass]="{disabled: (!percentageIsDiferentZero && !isFormValidPolicy) || !isFormValidMedicalAsstance}"
+    [ngClass]="{disabled: !disabledBtn}"
     (click)="createBeneficiaries()">Guardar y Finalizar</button>
 </div>

@@ -100,6 +100,7 @@ export class MedicalAssistanceTableComponent implements OnInit {
     }
 
     this._verifyUniqueParentage();
+    this.formValidMedicalAsstanceEmitter.emit(this.form.valid);
 
   }
 
@@ -122,6 +123,8 @@ export class MedicalAssistanceTableComponent implements OnInit {
     } else if (age >= 18 && parentValue === 2) {
       birthday.setErrors({ notUnderAge: true });
     }
+
+    this.formValidMedicalAsstanceEmitter.emit(this.form.valid);
   }
 
   public deleteBeneficiary(i: number): void {
