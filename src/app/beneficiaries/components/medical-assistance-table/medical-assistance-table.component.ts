@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import * as moment from 'moment-timezone';
@@ -15,11 +15,13 @@ import Beneficiary from '../../interfaces/beneficiary.interface';
   templateUrl: './medical-assistance-table.component.html',
   styleUrls: ['./medical-assistance-table.component.css']
 })
-export class MedicalAssistanceTableComponent implements OnInit {
+export class MedicalAssistanceTableComponent implements OnInit, OnChanges, OnDestroy {
 
+  @Input() isResetForms: boolean = false;
   @Input() inputParentage: Parentage[] = [];
   @Input() quantityInParentagePolicy: { id: number; quantity: number }[] = [];
 
+  @Output() changeStateResetFormsEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() beneficiariesMediacalAssitanceEmitter: EventEmitter<Beneficiary[]> = new EventEmitter<Beneficiary[]>();
   @Output() formValidMedicalAsstanceEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -34,6 +36,16 @@ export class MedicalAssistanceTableComponent implements OnInit {
       this.beneficiariesMediacalAssitanceEmitter.emit(this.beneficiaries.value);
       this.formValidMedicalAsstanceEmitter.emit(this.form.valid);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.isResetForms?.currentValue === true) {
+      this.changeStateResetFormsEmitter.emit(false);
+      while (this.beneficiaries.length > 1) {
+        this.beneficiaries.removeAt(0);
+      }
+      this.beneficiaries.reset();
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,26 +1,50 @@
-<div class="d-flex justify-content-center">
-  <app-policy-table
-    [percentage]="percentageAllocation"
-    [inputParentage]="parentagePolicy"
-    [quantityInParentageMedicalAsistance]="quantityInParentageMedicalAsistance"
-    (beneficiariesPolicyEmitter)="getBeneficiariesPolicy($event)"
-    (formValidPolicyEmitter)="formValidPolicy($event)"></app-policy-table>
+<!-- Button trigger modal -->
+<div class="d-flex justify-content-center align-items-center height-content">
+  <button type="button" class="btn btn-primary" (click)="toggleModal('staticBackdrop')">
+    Abrir Modal
+  </button>
 </div>
 
-<div class="d-flex justify-content-center mt-5">
-  <app-medical-assistance-table
-    [quantityInParentagePolicy]="quantityInParentagePolicy"
-    [inputParentage]="parentageMedicalAssitance"
-    (beneficiariesMediacalAssitanceEmitter)="getBeneficiariesMediacalAssitance($event)"
-    (formValidMedicalAsstanceEmitter)="formValidMedicalAsstance($event)"></app-medical-assistance-table>
-</div>
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+  data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Beneficiarios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+          aria-label="Close" (click)="removeBeneficiaries()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center">
+          <app-policy-table
+            [percentage]="percentageAllocation"
+            [inputParentage]="parentagePolicy"
+            [quantityInParentageMedicalAsistance]="quantityInParentageMedicalAsistance"
+            [isResetForms]="isResetForms"
+            (changeStateResetFormsEmitter)="changeStateResetForms"
+            (beneficiariesPolicyEmitter)="getBeneficiariesPolicy($event)"
+            (formValidPolicyEmitter)="formValidPolicy($event)"></app-policy-table>
+        </div>
 
-
-{{percentageIsDiferentZero | json}}
-{{isFormValidPolicy | json}}
-{{isFormValidMedicalAsstance | json}}
-<div class="d-flex justify-content-center mt-5">
-  <button type="button" class="btn btn-sm btn-success"
-    [ngClass]="{disabled: !disabledBtn}"
-    (click)="createBeneficiaries()">Guardar y Finalizar</button>
+        <div class="d-flex justify-content-center mt-5">
+          <app-medical-assistance-table
+            [quantityInParentagePolicy]="quantityInParentagePolicy"
+            [inputParentage]="parentageMedicalAssitance"
+            [isResetForms]="isResetForms"
+            (changeStateResetFormsEmitter)="changeStateResetForms"
+            (beneficiariesMediacalAssitanceEmitter)="getBeneficiariesMediacalAssitance($event)"
+            (formValidMedicalAsstanceEmitter)="formValidMedicalAsstance($event)"></app-medical-assistance-table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary"
+            data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-sm btn-success"
+            [ngClass]="{disabled: !disabledBtn}"
+            (click)="createBeneficiaries()">Guardar y Finalizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

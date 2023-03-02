@@ -5,10 +5,11 @@ import {
   PERCENTAGE_ALLOCATION
 } from 'src/app/beneficiaries/constants/table.contant';
 
+import * as bootstrap from "bootstrap";
+
 import Parentage from 'src/app/beneficiaries/interfaces/parentage.interface';
 import Beneficiary from './interfaces/beneficiary.interface';
 import { PercentageAllocation } from './interfaces/percentage-allocation.interface';
-
 @Component({
   selector: 'app-beneficiaries',
   templateUrl: './beneficiaries.component.html',
@@ -20,6 +21,7 @@ export class BeneficiariesComponent implements OnInit {
   public quantityInParentageMedicalAsistance: { id: number; quantity: number }[] = [];
   public isFormValidPolicy: boolean = false;
   public isFormValidMedicalAsstance: boolean = false;
+  public isResetForms: boolean = false;
 
   private _parentagePolicy: Parentage[] = PARENTAGE_POLICY;
   private _parentageMedicalAssitance: Parentage[] = PARENTAGE_MEDICAL_ASSISTANCE;
@@ -31,7 +33,22 @@ export class BeneficiariesComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  public createBeneficiaries(): void { }
+  public createBeneficiaries(): void {
+
+    const beneficiaries = {
+      mediacalAssitance: this._beneficiariesMediacalAssitance,
+      policy: this._beneficiariesPolicy,
+    }
+    sessionStorage.setItem('beneficiaries', JSON.stringify(beneficiaries));
+    this.toggleModal('staticBackdrop');
+    console.table(beneficiaries.mediacalAssitance);
+    console.table(beneficiaries.policy);
+  }
+
+  public removeBeneficiaries(): void {
+    this.changeStateResetForms = true;
+    sessionStorage.removeItem('beneficiaries');
+  }
 
   public getBeneficiariesPolicy(beneficiaries: Beneficiary[]): void {
     this._beneficiariesPolicy = beneficiaries;
@@ -72,6 +89,10 @@ export class BeneficiariesComponent implements OnInit {
     return quantityParentage;
   }
 
+  public toggleModal(id: string): void {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById(id)!).toggle()
+  }
+
   public get percentageIsDiferentZero(): boolean {
     let isDiferentZero: boolean = false;
     this._beneficiariesPolicy.map(beneficiary => {
@@ -102,6 +123,10 @@ export class BeneficiariesComponent implements OnInit {
       return true;
     }
     return false;
+  }
+
+  public set changeStateResetForms(resetForms: boolean) {
+    this.isResetForms = resetForms;
   }
 
 }

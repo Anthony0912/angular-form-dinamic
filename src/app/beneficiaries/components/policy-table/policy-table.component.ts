@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import * as moment from 'moment-timezone';
@@ -16,12 +16,14 @@ import Beneficiary from '../../interfaces/beneficiary.interface';
   templateUrl: './policy-table.component.html',
   styleUrls: ['./policy-table.component.css']
 })
-export class PolicyTableComponent implements OnInit, OnDestroy {
+export class PolicyTableComponent implements OnInit, OnChanges, OnDestroy {
 
+  @Input() isResetForms: boolean = false;
   @Input() inputParentage: Parentage[] = [];
   @Input() percentage: PercentageAllocation[] = [];
   @Input() quantityInParentageMedicalAsistance: { id: number; quantity: number }[] = [];
 
+  @Output() changeStateResetFormsEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() beneficiariesPolicyEmitter: EventEmitter<Beneficiary[]> = new EventEmitter<Beneficiary[]>();
   @Output() formValidPolicyEmitter: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -36,6 +38,16 @@ export class PolicyTableComponent implements OnInit, OnDestroy {
       this.beneficiariesPolicyEmitter.emit(this.beneficiaries.value);
       this.formValidPolicyEmitter.emit(this.form.valid);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.isResetForms?.currentValue === true) {
+      this.changeStateResetFormsEmitter.emit(false);
+      while ( this.beneficiaries.length > 1) {
+        this.beneficiaries.removeAt(0);
+      }
+      this.beneficiaries.reset();
+    }
   }
 
   ngOnDestroy(): void {
